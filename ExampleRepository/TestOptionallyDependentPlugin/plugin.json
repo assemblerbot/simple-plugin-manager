@@ -1,0 +1,7 @@
+{
+	"Id":"TestOptionallyDependentPlugin",
+	"Name":"Test optionally dependent plugin",
+	"Description" : "Test optionally dependent plugin description.",
+	"Version":"1.0.0-rc1",
+	"Dependencies":[]
+}

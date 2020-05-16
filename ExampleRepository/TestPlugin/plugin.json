@@ -1,0 +1,8 @@
+{
+	"Id":"TestPlugin",
+	"Name":"Test plugin",
+	"Description" : "Test plugin description.",
+	"Version":"1.0.0",
+	"Dependencies":[],
+	"GlobalDefines":["TEST_PLUGIN_INSTALLED"]
+}
