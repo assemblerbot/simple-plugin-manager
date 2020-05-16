@@ -2,7 +2,7 @@
 **Simple Plugin Manager** is a lightweight Unity tool that manages folder based plugins stored on HDD repository.
 It can handle dependencies and also supports optional dependencies through global defines in unity project.
 
-In action it looks like this:
+In action it looks like this: (plugins are not included :-) )
 ![Screenshot](SimplePluginManager.png)
 
 ## Installation
@@ -42,4 +42,4 @@ Example json structure:
 
 ## Working on plugins
 Modify your plugin in your unity project. When you increase version in *plugin.json* manager will offer your to downgrade plugin back from repository or copy new version to repository.
-
+ 
