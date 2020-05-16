@@ -2,7 +2,10 @@
 **Simple Plugin Manager** is a lightweight Unity tool that manages folder based plugins stored on HDD repository.
 It can handle dependencies and also supports optional dependencies through global defines in unity project.
 
- ## Installation
+In action it looks like this:
+![Screenshot](SimplePluginManager.png)
+
+## Installation
  * download and copy **Simple Plugin Manager** to your project
  * create a folder outside your projects - that will be your plugin repository
  * inside your project *Assets* folder create settings asset
@@ -13,7 +16,7 @@ It can handle dependencies and also supports optional dependencies through globa
    * set relative path to your plugins inside your project under **Assets** 
  * run plugin manager: *Tools &rarr; Simple Plugin Manager*
  
- ## How to make a plugin
+## How to make a plugin
 * create folder in repository or in plugins folder inside unity project
 * add any files you want there
 * create **plugin.json**
