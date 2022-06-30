@@ -2,6 +2,6 @@
 	"Id":"SimplePluginManager",
 	"Name":"Simple plugin manager",
 	"Description" : "Plugin manager. Copy to project and access through menu: Tools->Simple plugin manager",
-	"Version":"1.0.0",
+	"Version":"1.0.3",
 	"Dependencies":[]
 }

@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace SimplePluginManager
 {
-	public struct SimplePluginManagerVersion
+	public readonly struct SimplePluginManagerVersion
 	{
-		private struct StringIntVariant
+		private readonly struct StringIntVariant
 		{
 			public readonly string StringValue;
 			public readonly long   LongValue;
@@ -66,6 +66,27 @@ namespace SimplePluginManager
 				}
 
 				return string.CompareOrdinal(v1.StringValue, v2.StringValue) > 0; // string comparison
+			}
+			
+			public bool Equals(StringIntVariant other)
+			{
+				return StringValue == other.StringValue && LongValue == other.LongValue && IsValidNumber == other.IsValidNumber;
+			}
+
+			public override bool Equals(object obj)
+			{
+				return obj is StringIntVariant other && Equals(other);
+			}
+
+			public override int GetHashCode()
+			{
+				unchecked
+				{
+					var hash_code = (StringValue != null ? StringValue.GetHashCode() : 0);
+					hash_code = (hash_code * 397) ^ LongValue.GetHashCode();
+					hash_code = (hash_code * 397) ^ IsValidNumber.GetHashCode();
+					return hash_code;
+				}
 			}
 		}
 
@@ -204,6 +225,21 @@ namespace SimplePluginManager
 			}
 			
 			return v1.Identifiers.Length > v2.Identifiers.Length;
+		}
+
+		public bool Equals(SimplePluginManagerVersion other)
+		{
+			return Equals(Identifiers, other.Identifiers);
+		}
+
+		public override bool Equals(object obj)
+		{
+			return obj is SimplePluginManagerVersion other && Equals(other);
+		}
+
+		public override int GetHashCode()
+		{
+			return (Identifiers != null ? Identifiers.GetHashCode() : 0);
 		}
 	}
 }

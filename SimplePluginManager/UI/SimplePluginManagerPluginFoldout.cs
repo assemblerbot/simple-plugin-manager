@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -25,10 +26,10 @@ namespace SimplePluginManager
 			string repository_version = repository_plugin == null ? "not available" : repository_plugin.Version;
 			string project_version    = project_plugin    == null ? "not installed" : project_plugin.Version;
 
-			bool is_any_plugin_dependent_on_this = collections.IsAnyProjectPluginDependentOn(plugin.Id);
-			bool is_dependency_error             = collections.IsDependencyError(plugin);
-			bool is_version_error                = (repository_plugin?.ParseVersion.IsError ?? false) || (project_plugin?.ParseVersion.IsError ?? false);
-			bool is_error = is_dependency_error || is_version_error;
+			List<SimplePluginManagerPlugin> plugins_dependent_on_this       = collections.GetAllProjectPluginsDependentOn(plugin.Id);
+			bool                            is_dependency_error             = collections.IsDependencyError(plugin);
+			bool                            is_version_error                = (repository_plugin?.ParseVersion.IsError ?? false) || (project_plugin?.ParseVersion.IsError ?? false);
+			bool                            is_error                        = is_dependency_error                                || is_version_error;
 	        
 			// layout
 			EditorGUILayout.BeginHorizontal();
@@ -48,7 +49,7 @@ namespace SimplePluginManager
 					m_IsExpanded = EditorGUILayout.Foldout(m_IsExpanded, "") || is_error;
 					if (!m_IsExpanded)
 					{
-						GuiButtons(settings, collections, repository_plugin, project_plugin, is_any_plugin_dependent_on_this, is_error, on_collections_changed);
+						GuiButtons(settings, collections, repository_plugin, project_plugin, plugins_dependent_on_this.Count > 0, is_error, on_collections_changed);
 					}
 					EditorGUILayout.EndHorizontal();
 
@@ -60,6 +61,7 @@ namespace SimplePluginManager
 						GUILayout.Label(plugin.Description, rich_text_style);
 
 						GuiPluginDependencies(plugin, collections, icons);
+						GuiPluginsDependentOn(plugins_dependent_on_this, collections, icons);
 						GUILayout.Space(8);
 						GUILayout.Label("Id:"          + plugin.Id);
 						GUILayout.Label("Repository: " + repository_version);
@@ -95,7 +97,7 @@ namespace SimplePluginManager
 							EditorGUILayout.BeginHorizontal();
 							{
 								GUILayout.Label(""); //formatting
-								GuiButtons(settings, collections, repository_plugin, project_plugin, is_any_plugin_dependent_on_this, is_error, on_collections_changed);
+								GuiButtons(settings, collections, repository_plugin, project_plugin, plugins_dependent_on_this.Count > 0, is_error, on_collections_changed);
 							}
 							EditorGUILayout.EndHorizontal();
 						}
@@ -121,27 +123,55 @@ namespace SimplePluginManager
 
 				foreach (string dependency in plugin.Dependencies)
 				{
-					GUILayout.BeginHorizontal();
-					GUILayout.Space(16);
-					GUILayout.Label(
-						icons.GetDependencyStatusIcon(
-							collections.IsInProject(dependency),
-							collections.IsInRepository(dependency)
-						),
-						GUILayout.Width(20)
-					);
-					GUILayout.Label(collections.GetPluginNameAndVersion(dependency));
-					GUILayout.EndHorizontal();
+					GuiPluginSublistItem(dependency, collections, icons);
 				}
 			}
 		}
-		
+
+		private void GuiPluginsDependentOn(
+			List<SimplePluginManagerPlugin> plugins_dependent_on_this,
+			SimplePluginManagerCollections  collections, 
+			SimplePluginManagerStatusIcons  icons
+		)
+		{
+			if (plugins_dependent_on_this.Count == 0)
+			{
+				return;
+			}
+
+			GUILayout.Space(8);
+			GUILayout.Label("Required by plugins:", EditorStyles.boldLabel);
+			foreach (SimplePluginManagerPlugin plugin in plugins_dependent_on_this)
+			{
+				GuiPluginSublistItem(plugin.Id, collections, icons);
+			}
+		}
+
+		private void GuiPluginSublistItem(
+			string plugin_id,
+			SimplePluginManagerCollections collections,
+			SimplePluginManagerStatusIcons icons
+		)
+		{
+			GUILayout.BeginHorizontal();
+			GUILayout.Space(16);
+			GUILayout.Label(
+				icons.GetDependencyStatusIcon(
+					collections.IsInProject(plugin_id),
+					collections.IsInRepository(plugin_id)
+				),
+				GUILayout.Width(20)
+			);
+			GUILayout.Label(collections.GetPluginNameAndVersion(plugin_id));
+			GUILayout.EndHorizontal();
+		}
+
 		private void GuiButtons(
 			SimplePluginManagerSettings    settings,
 			SimplePluginManagerCollections collections,
 			SimplePluginManagerPlugin      repository_plugin,
 			SimplePluginManagerPlugin      project_plugin,
-			bool                           is_any_plugin_dependent_on_this,
+			bool any_plugins_dependent_on_this,
 			bool                           is_error,
 			Action                         on_collections_changed
 		)
@@ -174,9 +204,9 @@ namespace SimplePluginManager
 							AssetDatabase.Refresh();
 						}
 
-						if (is_any_plugin_dependent_on_this)
+						if (any_plugins_dependent_on_this)
 						{
-							GUILayout.Label("Required by other plugin.", GUILayout.Width(256));
+							GUILayout.Label("Required by other plugin(s).", GUILayout.Width(256));
 						}
 						else if(GUILayout.Button("Uninstall", GUILayout.Width(256)))
 						{
@@ -189,9 +219,9 @@ namespace SimplePluginManager
 					{
 						GUILayout.Label("Up to date.", EditorStyles.boldLabel, GUILayout.Width(256));
 
-						if (is_any_plugin_dependent_on_this)
+						if (any_plugins_dependent_on_this)
 						{
-							GUILayout.Label("Required by other plugin.", GUILayout.Width(256));
+							GUILayout.Label("Required by other plugin(s).", GUILayout.Width(256));
 						}
 						else if(GUILayout.Button("Uninstall", GUILayout.Width(256)))
 						{

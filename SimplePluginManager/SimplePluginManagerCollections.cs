@@ -83,6 +83,11 @@ namespace SimplePluginManager
             return m_Project.Plugins.Any(x => x.Value.Dependencies != null && x.Value.Dependencies.Contains(plugin_id));
         }
 
+        public List<SimplePluginManagerPlugin> GetAllProjectPluginsDependentOn(string plugin_id)
+        {
+            return m_Project.Plugins.Values.ToList().FindAll(x => x.Dependencies != null && x.Dependencies.Contains(plugin_id));
+        }
+
         public bool IsInProject(string plugin_id)
         {
             return m_Project.Plugins.ContainsKey(plugin_id);
